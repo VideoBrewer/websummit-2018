@@ -2,5 +2,5 @@
 
 ### TODO
 - [ ] Group nodes by country
-- [ ] Display some stats like male-female ration, countries, positions
+- [ ] Display some stats like male-female ratio, countries, job positions
 - [ ] Analyze bio for meaningful searching
