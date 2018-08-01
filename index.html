@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+<head>
+    <title>WebSummit 2018 - Speakers</title>
+    <meta name="description" content="WebSummit 2018 - Speakers">
+    <meta name="keywords" content="websummit,speakers">
+    <meta name="author" content="Stefanos Chrs">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" integrity="sha256-tTIVWrgsLDcekkoaiqePYP86joMAiyp4KqEswPMmTfQ=" crossorigin="anonymous" />
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+        }
+
+        #network {
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="network"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js" integrity="sha256-z4uJf4qxa6fOwudp++XaHza5NiKuOkELRsT6DaF/2n0=" crossorigin="anonymous"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        const SPEAKER_POP_INTERVAL = 50
+
+        let speakers
+        let network
+
+        fetch('./data/speakers.json')
+          .then((res) => res.json())
+          .then((res) => {
+            /**
+             * Research
+             */
+
+            /**
+             * avatar_urls:
+             *   large:"https://s3-eu-west-1.amazonaws.com/avenger.cilabs.net/production/avatars/large/956d7b348a128c43529d2e7c303e6b86fbd749e1.png?1523462298"
+             *   medium:"https://s3-eu-west-1.amazonaws.com/avenger.cilabs.net/production/avatars/medium/cbfd02f33ac3693b4f728d31f90a862d578709b0.png?1523462298"
+             *   thumb:"https://s3-eu-west-1.amazonaws.com/avenger.cilabs.net/production/avatars/thumb/b57201c797973b83cea6ab58741d2c6f6d5aee42.png?1523462298"
+             *   tinythumb:"https://s3-eu-west-1.amazonaws.com/avenger.cilabs.net/production/avatars/tinythumb/203b3b270858cb58887df3d23bd2f2d6ae3da628.png?1523462298"
+             * bio:"Evan Williams is a coder and entrepreneur but is best known for founding some of the most influential media services on the internet. In January 1999, he co-founded Pyra Labs and launched Blogger, which was instrumental in the popularization of the term "blog". In 2004, Evan co-founded Odeo, a podcast company, followed by the Obvious Corporation in 2006. Among Obvious Corporation's projects was Twitter, which became its own company in 2007.. Evan’s most recent venture is Medium, an online publishing platform and a leader in social journalism."
+             * company_name:"Medium/Twitter"
+             * country:"United States of America"
+             * first_name:"Evan"
+             * id:"cca94cc7-20ba-444d-8c1f-d1f5dc1a4206"
+             * job_title:"Founder"
+             * last_name:"Williams"
+             */
+
+            console.log('Companies', res.reduce((acc, curr) => {
+              if (!acc.includes(curr.company_name)) {
+                acc.push(curr.company_name)
+              }
+
+              return acc
+            }, []))
+
+            console.log('Job titles', res.reduce((acc, curr) => {
+              if (!acc.includes(curr.job_title)) {
+                acc.push(curr.job_title)
+              }
+
+              return acc
+            }, []))
+
+            console.log('Countries', res.reduce((acc, curr) => {
+              if (!acc.includes(curr.country)) {
+                acc.push(curr.country)
+              }
+
+              return acc
+            }, []))
+
+            return res
+          })
+          .then((res) => {
+            speakers = res
+            // .slice(0, 10) // dev
+              .map((speaker) => ({
+                id: speaker.id,
+                shape: 'circularImage',
+                label: `${speaker.first_name} ${speaker.last_name}`,
+                image: speaker.avatar_urls.tinythumb,
+                mass: 1.1666
+              }))
+
+            let nodes = new vis.DataSet()
+            let edges = [] // nodes.map((node) => ({ from: 'websummit', to: node.id }))
+
+            nodes.add({
+              id: 'websummit',
+              shape: 'circularImage',
+              image: 'https://pbs.twimg.com/profile_images/887712266740789249/SmWisANB_400x400.jpg',
+              size: 60
+            })
+
+            let data = {
+              nodes,
+              edges
+            }
+
+            let options = {}
+
+            network = new vis.Network(document.querySelector('#network'), data, options)
+
+            // Make it rain!!
+            setTimeout(() => addSpeaker(nodes, 0), 1000)
+          })
+
+        function addSpeaker (nodes, index) {
+          if (index === speakers.length) return
+
+          nodes.add(speakers[index])
+
+          setTimeout(() => addSpeaker(nodes, ++index), SPEAKER_POP_INTERVAL)
+        }
+      })()
+    </script>
+</body>
+</html>
